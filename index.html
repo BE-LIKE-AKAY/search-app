@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search App</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #1e1e1e; /* Dark background */
+            color: #eee; /* Light text */
+        }
+        #search-container {
+            text-align: center;
+            margin-top: 50px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 50%;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50; /* Green button */
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .loading {
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+    <div id="search-container">
+        <input type="text" id="keyword" placeholder="Enter keyword">
+        <button onclick="search()">Search</button>
+        <div class="loading">Loading...</div>
+    </div>
+    <div id="results"></div>
+
+    <script>
+        async function search() {
+            const keyword = document.getElementById('keyword').value;
+            const resultsDiv = document.getElementById('results');
+            const loadingDiv = document.querySelector('.loading');
+
+            loadingDiv.style.display = 'block'; // Show loading spinner
+            resultsDiv.innerHTML = ''; // Clear previous results
+
+            try {
+                const response = await fetch('YOUR_RENDER_URL/search', {  // Replace with your Render URL
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `keyword=${encodeURIComponent(keyword)}`
+                });
+
+                const data = await response.json();
+                loadingDiv.style.display = 'none'; // Hide loading spinner
+
+                if (data.results.length === 0) {
+                    resultsDiv.innerHTML = '<p>No results found.</p>';
+                } else {
+                    data.results.forEach(result => {
+                        resultsDiv.innerHTML += `<p><b>${result.file}</b> (Line ${result.line}): ${result.content}</p>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultsDiv.innerHTML = '<p>An error occurred.</p>';
+                loadingDiv.style.display = 'none'; // Hide loading spinner
+            }
+        }
+    </script>
+</body>
+</html>
